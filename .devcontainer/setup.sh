@@ -28,4 +28,25 @@ echo "==> Instalando dependencias de Laravel..."
 cd /workspaces/Sistema-POS-Empanadas
 composer install
 
+
+
+echo "==> Generando archivo .env..."
+cat > /workspaces/Sistema-POS-Empanadas/.env << ENVEOF
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=pgsql
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_DATABASE=${DB_DATABASE}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+DB_SSLMODE=${DB_SSLMODE}
+ENVEOF
+
+php artisan key:generate
+
 echo "==> Listo! Driver PostgreSQL instalado correctamente."
