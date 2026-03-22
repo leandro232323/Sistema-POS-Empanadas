@@ -1,0 +1,4 @@
+{
+  "name": "Sistema POS Empanadas",
+  "postCreateCommand": "bash .devcontainer/setup.sh"
+}
