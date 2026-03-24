@@ -80,6 +80,15 @@ class PosController extends Controller{
     }
 
     public function guardarCliente(Request $request){
+        $request->validate([
+            'tipo_documento' => 'required|max:20',
+            'numero_documento' => 'required|max:50|unique:clientes,numero_documento',
+            'nombre' => 'required|max:100',
+            'direccion' => 'nullable|max:150',
+            'ciudad' => 'nullable|max:100',
+            'telefono' => 'nullable|max:20'
+        ]);
+
         Cliente::create([
             'tipo_documento' => $request->tipo_documento,
             'numero_documento' => $request->numero_documento,
@@ -90,6 +99,7 @@ class PosController extends Controller{
             'es_mostrador' => false
         ]);
 
-        return redirect('/pos')->with('success', 'Cliente creado');
+        return redirect('/pos')->with('success', 'Cliente creado correctamente');
     }
+
 }

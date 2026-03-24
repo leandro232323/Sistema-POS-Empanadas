@@ -54,10 +54,23 @@
 
     <h3>Total: $<span id="total">0</span></h3>
 
-    <button type="submit">Vender</button>
+    <button type="submit" onclick="return confirm('¿Confirmar venta?')">
+        Vender
+    </button>
 </form>
 
 <hr>
+
+
+@if ($errors->any())
+    <div style="color:red;">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>Existe un usuario con el mismo documento, intente con otro</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 {{-- 🔹 FORMULARIO NUEVO CLIENTE (SEPARADO) --}}
 <h3>Nuevo Cliente</h3>
@@ -67,7 +80,7 @@
 
     <input type="text" name="tipo_documento" placeholder="Tipo doc" required>
     <input type="text" name="numero_documento" placeholder="Número doc" required>
-    <input type="text" name="nombre" placeholder="Nombre" required>
+    <input type="text" name="nombre" placeholder="Nombre completo" required>
     <input type="text" name="direccion" placeholder="Dirección">
     <input type="text" name="ciudad" placeholder="Ciudad">
     <input type="text" name="telefono" placeholder="Teléfono">
