@@ -8,6 +8,7 @@
     <p style="color: red;">{{ session('error') }}</p>
 @endif
 
+{{-- 🔹 FORMULARIO VENTA --}}
 <form method="POST" action="/pos/guardar">
     @csrf
 
@@ -54,6 +55,24 @@
     <h3>Total: $<span id="total">0</span></h3>
 
     <button type="submit">Vender</button>
+</form>
+
+<hr>
+
+{{-- 🔹 FORMULARIO NUEVO CLIENTE (SEPARADO) --}}
+<h3>Nuevo Cliente</h3>
+
+<form method="POST" action="/pos/cliente">
+    @csrf
+
+    <input type="text" name="tipo_documento" placeholder="Tipo doc" required>
+    <input type="text" name="numero_documento" placeholder="Número doc" required>
+    <input type="text" name="nombre" placeholder="Nombre" required>
+    <input type="text" name="direccion" placeholder="Dirección">
+    <input type="text" name="ciudad" placeholder="Ciudad">
+    <input type="text" name="telefono" placeholder="Teléfono">
+
+    <button type="submit">Guardar Cliente</button>
 </form>
 
 <script>

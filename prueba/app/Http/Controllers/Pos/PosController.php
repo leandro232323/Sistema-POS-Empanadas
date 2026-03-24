@@ -10,11 +10,9 @@ use App\Models\DetalleVenta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PosController extends Controller
-{
+class PosController extends Controller{
     // 🔹 Mostrar POS
-    public function index()
-    {
+    public function index(){
         $productos = Producto::where('estado', true)->get();
         $clientes = Cliente::all();
 
@@ -22,8 +20,7 @@ class PosController extends Controller
     }
 
     // 🔹 Guardar venta
-    public function guardarVenta(Request $request)
-    {
+    public function guardarVenta(Request $request){
         DB::beginTransaction();
 
         try {
@@ -80,5 +77,19 @@ class PosController extends Controller
 
             return back()->with('error', 'Error al guardar la venta');
         }
+    }
+
+    public function guardarCliente(Request $request){
+        Cliente::create([
+            'tipo_documento' => $request->tipo_documento,
+            'numero_documento' => $request->numero_documento,
+            'nombre' => $request->nombre,
+            'direccion' => $request->direccion,
+            'ciudad' => $request->ciudad,
+            'telefono' => $request->telefono,
+            'es_mostrador' => false
+        ]);
+
+        return redirect('/pos')->with('success', 'Cliente creado');
     }
 }

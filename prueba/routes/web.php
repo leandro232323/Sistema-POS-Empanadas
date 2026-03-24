@@ -8,3 +8,4 @@ Route::get('/admin', [AdminController::class, 'index']);
 
 // Esto no se toca
 Route::post('/pos/guardar', [PosController::class, 'guardarVenta']);
+Route::post('/pos/cliente', [PosController::class, 'guardarCliente']);
