@@ -92,6 +92,16 @@
         .alert-success { background: #EDF7EF; color: var(--success); border: 1px solid #B7DFC0; }
         .alert-error   { background: #FDECEA; color: var(--error);   border: 1px solid #F5C6C2; }
 
+        @keyframes alertFadeOut {
+            0%   { opacity: 1; transform: translateY(0);    max-height: 80px; margin-bottom: 0; }
+            70%  { opacity: 0; transform: translateY(-6px); max-height: 80px; margin-bottom: 0; }
+            100% { opacity: 0; transform: translateY(-6px); max-height: 0;    margin-bottom: 0; padding: 0; }
+        }
+        .alert-box.dismissing {
+            overflow: hidden;
+            animation: alertFadeOut .4s ease forwards;
+        }
+
         /* ── LAYOUT ── */
         .pos-wrap {
             max-width: 1280px;
@@ -492,6 +502,90 @@
             border: 1px solid var(--border);
         }
 
+        /* ── CONFIRM MODAL ── */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(28,18,10,.6);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-overlay.open { display: flex; }
+        .confirm-box {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 380px;
+            margin: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: confirmPop .22s cubic-bezier(.34,1.56,.64,1) forwards;
+        }
+        @keyframes confirmPop {
+            from { opacity: 0; transform: scale(.92) translateY(10px); }
+            to   { opacity: 1; transform: scale(1)   translateY(0); }
+        }
+        .confirm-icon {
+            background: var(--cream-dark);
+            padding: 28px 24px 16px;
+            text-align: center;
+            font-size: 2.8rem;
+            line-height: 1;
+        }
+        .confirm-content { padding: 8px 28px 24px; text-align: center; }
+        .confirm-content h4 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+        .confirm-content p {
+            font-size: .875rem;
+            color: var(--ink-soft);
+            line-height: 1.5;
+        }
+        .confirm-total {
+            margin: 14px 0 0;
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--brand);
+        }
+        .confirm-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid var(--border);
+        }
+        .confirm-cancel {
+            padding: 16px;
+            border: none;
+            border-right: 1px solid var(--border);
+            background: transparent;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .confirm-cancel:hover { background: var(--cream); }
+        .confirm-ok {
+            padding: 16px;
+            border: none;
+            background: var(--brand);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .confirm-ok:hover { background: var(--brand-deep); }
+
         /* scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -613,7 +707,7 @@
                 <span class="total-label">TOTAL</span>
                 <span class="total-amount">$<span id="total">0</span></span>
             </div>
-            <button type="submit" class="btn-sell" onclick="return confirm('¿Confirmar la venta?')">
+            <button type="button" class="btn-sell" onclick="openConfirm()">
                 Registrar Venta →
             </button>
         </div>
@@ -621,6 +715,22 @@
 
 </div>
 </form>
+
+{{-- ─── MODAL: CONFIRMAR VENTA ─── --}}
+<div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+        <div class="confirm-icon">🥟</div>
+        <div class="confirm-content">
+            <h4>¿Confirmar venta?</h4>
+            <p>Revisa el resumen antes de registrar.<br>Esta acción no se puede deshacer.</p>
+            <div class="confirm-total">$<span id="confirm-total-val">0</span></div>
+        </div>
+        <div class="confirm-actions">
+            <button type="button" class="confirm-cancel" onclick="closeConfirm()">Cancelar</button>
+            <button type="button" class="confirm-ok" onclick="submitSale()">Confirmar ✓</button>
+        </div>
+    </div>
+</div>
 
 
 {{-- ─── MODAL: NUEVO CLIENTE ─── --}}
@@ -696,6 +806,22 @@
     // ── modal ──
     function openModal()  { document.getElementById('modal-overlay').classList.add('open'); }
     function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+    // ── confirm sale modal ──
+    function openConfirm() {
+        document.getElementById("confirm-total-val").textContent = document.getElementById("total").textContent;
+        document.getElementById("confirm-overlay").classList.add("open");
+    }
+    function closeConfirm() {
+        document.getElementById("confirm-overlay").classList.remove("open");
+    }
+    function submitSale() {
+        closeConfirm();
+        document.getElementById("pos-form").submit();
+    }
+    document.getElementById("confirm-overlay").addEventListener("click", function(e) {
+        if (e.target === this) closeConfirm();
+    });
     document.getElementById('modal-overlay').addEventListener('click', function(e){
         if(e.target === this) closeModal();
     });
@@ -728,6 +854,14 @@
 
         updateSummary();
     }
+
+    // ── auto-dismiss alerts after 3 s ──
+    document.querySelectorAll('.alert-box').forEach(el => {
+        setTimeout(() => {
+            el.classList.add('dismissing');
+            el.addEventListener('animationend', () => el.remove(), { once: true });
+        }, 3000);
+    });
 
     function updateSummary() {
         const inputs = document.querySelectorAll('.cantidad');
