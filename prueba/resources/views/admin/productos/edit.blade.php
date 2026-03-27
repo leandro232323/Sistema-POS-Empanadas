@@ -1,6 +1,8 @@
 @extends('admin.layout')
 
 @section('title', 'Editar Producto')
+<!-- terminado-->
+
 
 @section('content')
 <div class="row mb-4">

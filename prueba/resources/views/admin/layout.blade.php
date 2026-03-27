@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<!-- terminado-->
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -93,6 +95,7 @@
         }
     </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-admin mb-4">

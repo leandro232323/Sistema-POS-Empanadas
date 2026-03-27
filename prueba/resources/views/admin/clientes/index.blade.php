@@ -1,6 +1,7 @@
 @extends('admin.layout')
 
 @section('title', 'Clientes')
+<!-- terminado-->
 
 @section('content')
 

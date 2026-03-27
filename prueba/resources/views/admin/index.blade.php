@@ -4,6 +4,9 @@
 
 @section('content')
 
+
+
+<!-- terminado-->
 <div class="card">
     <div class="card-header">
         Menú principal

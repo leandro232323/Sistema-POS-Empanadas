@@ -3,6 +3,7 @@ asi ??
 @extends('admin.layout')
 
 @section('title', 'Editar Cliente')
+<!-- terminado-->
 
 @section('content')
 <div class="row mb-4">
