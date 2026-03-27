@@ -15,14 +15,30 @@
 <div class="row">
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header">
-                <i class="bi bi-list-ul me-2"></i>Listado de Ventas
+
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-list-ul me-2"></i>Listado de Ventas
+                </span>
+
+                {{-- 🔍 BUSCADOR --}}
+                <div style="position: relative; width: 250px;">
+                    <i class="bi bi-search" 
+                       style="position:absolute; left:10px; top:8px; color:#6c757d;"></i>
+                    <input 
+                        type="text" 
+                        id="buscarVentas" 
+                        class="form-control ps-4"
+                        placeholder=" Buscar cliente, ciudad..."
+                        autocomplete="off"
+                    >
+                </div>
             </div>
 
             <div class="card-body">
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle" id="tablaVentas">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -35,7 +51,17 @@
 
                         <tbody>
                             @forelse($ventas as $venta)
-                                <tr>
+
+                                @php
+                                    $searchVal = strtolower(
+                                        ($venta->cliente ?? '') . ' ' .
+                                        ($venta->ciudad ?? '') . ' ' .
+                                        number_format($venta->total, 0, ',', '.') . ' ' .
+                                        \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y H:i')
+                                    );
+                                @endphp
+
+                                <tr data-search="{{ $searchVal }}">
                                     <td>{{ $venta->id }}</td>
 
                                     <td>
@@ -56,6 +82,7 @@
                                         {{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y H:i') }}
                                     </td>
                                 </tr>
+
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center text-muted">
@@ -72,5 +99,19 @@
         </div>
     </div>
 </div>
+
+{{-- 🔍 SCRIPT BUSCADOR --}}
+<script>
+document.getElementById('buscarVentas')?.addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+
+    document.querySelectorAll('#tablaVentas tbody tr').forEach(tr => {
+        const text = tr.dataset.search || '';
+        const match = text.includes(q);
+
+        tr.style.display = match ? '' : 'none';
+    });
+});
+</script>
 
 @endsection
