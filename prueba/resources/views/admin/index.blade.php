@@ -1,19 +1,37 @@
-<!DOCTYPE html><p>Bienvenido al sistema de administración</p>
-<html>
-<head>
-    <title>Admin</title>
-</head>
-<body>
+@extends('admin.layout')
 
-<h1>Panel de Administración</h1>
+@section('title', 'Inicio')
 
-<hr>
+@section('content')
 
-<ul>
-    <li><a href="/admin/productos">Gestión de productos</a></li>
-    <li><a href="/admin/clientes">Gestión de clientes</a></li>
-    <li><a href="/admin/reportes">Informes de ventas</a></li>
-</ul>
+<div class="card">
+    <div class="card-header">
+        Menú principal
+    </div>
 
-</body>
-</html>
+    <div class="card-body">
+        <div class="row">
+
+            <div class="col-md-4">
+                <a href="/admin/productos" class="btn btn-primary w-100 mb-3">
+                    📦 Gestión de productos
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/admin/clientes" class="btn btn-primary w-100 mb-3">
+                    👥 Gestión de clientes
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/admin/reportes" class="btn btn-primary w-100 mb-3">
+                    📊 Informes de ventas
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@endsection

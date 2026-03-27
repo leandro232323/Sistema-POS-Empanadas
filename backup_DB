@@ -1,0 +1,163 @@
+-- =========================
+-- TABLA CLIENTES
+-- =========================
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    tipo_documento VARCHAR(20),
+    numero_documento VARCHAR(50),
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(150),
+    ciudad VARCHAR(100),
+    telefono VARCHAR(20),
+    es_mostrador BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Cliente por defecto (MOSTRADOR)
+INSERT INTO clientes (nombre, es_mostrador)
+VALUES ('Cliente de mostrador', TRUE);
+
+-- =========================
+-- TABLA PRODUCTOS
+-- =========================
+CREATE TABLE productos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(50) CHECK (tipo IN ('empanada', 'papa_rellena')),
+    precio NUMERIC(10,2) CHECK (precio > 0) NOT NULL,
+    estado BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- TABLA VENTAS
+-- =========================
+CREATE TABLE ventas (
+    id SERIAL PRIMARY KEY,
+    cliente_id INT NOT NULL REFERENCES clientes(id),
+    total NUMERIC(10,2) DEFAULT 0 CHECK (total >= 0),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- TABLA DETALLE DE VENTAS
+-- =========================
+CREATE TABLE detalle_ventas (
+    id SERIAL PRIMARY KEY,
+    venta_id INT REFERENCES ventas(id) ON DELETE CASCADE,
+    producto_id INT REFERENCES productos(id),
+    cantidad INT NOT NULL CHECK (cantidad > 0),
+    precio_unitario NUMERIC(10,2) NOT NULL CHECK (precio_unitario > 0),
+    subtotal NUMERIC(10,2) NOT NULL CHECK (subtotal >= 0)
+);
+
+-- =========================
+-- TRIGGER: NO BORRAR PRODUCTOS CON VENTAS
+-- =========================
+CREATE OR REPLACE FUNCTION evitar_borrado_producto()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM detalle_ventas WHERE producto_id = OLD.id
+    ) THEN
+        RAISE EXCEPTION 'No se puede borrar el producto porque tiene ventas registradas';
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_evitar_borrado_producto
+BEFORE DELETE ON productos
+FOR EACH ROW
+EXECUTE FUNCTION evitar_borrado_producto();
+
+-- =========================
+-- TRIGGER: NO BORRAR CLIENTES CON COMPRAS
+-- =========================
+CREATE OR REPLACE FUNCTION evitar_borrado_cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM ventas WHERE cliente_id = OLD.id
+    ) THEN
+        RAISE EXCEPTION 'No se puede borrar el cliente porque tiene compras registradas';
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_evitar_borrado_cliente
+BEFORE DELETE ON clientes
+FOR EACH ROW
+EXECUTE FUNCTION evitar_borrado_cliente();
+
+-- =========================
+-- TRIGGER: ACTUALIZAR TOTAL DE VENTA
+-- =========================
+CREATE OR REPLACE FUNCTION actualizar_total_venta()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_venta_id INT;
+BEGIN
+    v_venta_id := COALESCE(NEW.venta_id, OLD.venta_id);
+
+    UPDATE ventas
+    SET total = (
+        SELECT COALESCE(SUM(subtotal), 0)
+        FROM detalle_ventas
+        WHERE venta_id = v_venta_id
+    )
+    WHERE id = v_venta_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trigger_actualizar_total
+AFTER INSERT OR UPDATE OR DELETE ON detalle_ventas
+FOR EACH ROW
+EXECUTE FUNCTION actualizar_total_venta();
+
+
+-- modificaciones finales
+ALTER TABLE detalle_ventas
+ALTER COLUMN venta_id SET NOT NULL;
+
+ALTER TABLE detalle_ventas
+ALTER COLUMN producto_id SET NOT NULL;
+
+ALTER TABLE clientes
+ADD CONSTRAINT unique_numero_documento UNIQUE (numero_documento);
+
+CREATE INDEX idx_ventas_fecha ON ventas(fecha);
+
+CREATE INDEX idx_detalle_producto ON detalle_ventas(producto_id);
+
+
+---- ===================================================
+---  ALIMENTANDO LA BASE DE DATOS CON DATOS DE PRUEBA
+---- ==================================================
+
+
+INSERT INTO productos (nombre, tipo, precio, estado)
+VALUES 
+('Empanada de pollo', 'empanada', 2500, true),
+('Empanada hawaiana', 'empanada', 3000, true),
+('Empanada de carne', 'empanada', 2800, true),
+('Papa rellena mixta', 'papa_rellena', 4000, true),
+('Papa rellena pollo', 'papa_rellena', 3800, true);
+
+
+
+INSERT INTO clientes (tipo_documento, numero_documento, nombre, direccion, ciudad, telefono)
+VALUES 
+('CC', '123456789', 'Juan Perez', 'Calle 123', 'Bucaramanga', '3001234567'),
+('CC', '987654321', 'Maria Gomez', 'Carrera 45', 'Giron', '3007654321');
+
+
+SELECT * FROM productos;
+SELECT * FROM clientes;
+select * FROM ventas;
+
+DELETE FROM clientes WHERE id = 6;

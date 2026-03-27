@@ -4,7 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Producto extends Model{
+class Producto extends Model
+{
     protected $table = 'productos';
-    public $timestamps = false;
+
+    protected $fillable = [
+        'nombre',
+        'tipo',
+        'precio',
+        'estado'
+    ];
+
+    public $timestamps = false; // tu BD no usa updated_at correctamente
 }

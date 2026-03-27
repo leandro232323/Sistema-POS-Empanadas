@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model{
     protected $table = 'clientes';
-    public $timestamps = false;
 
     protected $fillable = [
         'tipo_documento',
@@ -17,4 +16,6 @@ class Cliente extends Model{
         'telefono',
         'es_mostrador'
     ];
+
+    public $timestamps = false;
 }

@@ -2,30 +2,28 @@
 
 use App\Http\Controllers\Pos\PosController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AdminProductoController;
-use App\Http\Controllers\Admin\AdminClienteController;
+use App\Http\Controllers\Admin\ProductoController;
+use App\Http\Controllers\Admin\ClienteController;
+use App\Http\Controllers\Admin\ReporteController;
+use App\Http\Controllers\Admin\VentaController;
 
+// POS
 Route::get('/pos', [PosController::class, 'index']);
-Route::get('/admin', [AdminController::class, 'index']);
-
-// Esto no se toca
 Route::post('/pos/guardar', [PosController::class, 'guardarVenta']);
 Route::post('/pos/cliente', [PosController::class, 'guardarCliente']);
 
+// ADMIN
+Route::prefix('admin')->group(function () {
 
-// 🔥 ADMIN (AGREGADO)
+    Route::get('/', [AdminController::class, 'index']);
 
-// PRODUCTOS
-Route::get('/admin/productos', [AdminProductoController::class, 'index']);
-Route::get('/admin/productos/create', [AdminProductoController::class, 'create']);
-Route::post('/admin/productos', [AdminProductoController::class, 'store']);
+    Route::resource('productos', ProductoController::class);
+    Route::resource('clientes', ClienteController::class);
 
-// CLIENTES
-Route::get('/admin/clientes', [AdminClienteController::class, 'index']);
-Route::get('/admin/clientes/create', [AdminClienteController::class, 'create']);
-Route::post('/admin/clientes', [AdminClienteController::class, 'store']);
+    Route::get('reportes', [ReporteController::class, 'index']);
 
-// REPORTES
-Route::get('/admin/reportes', function () {
-    return view('admin.reportes.index');
+    Route::get('ventas', [VentaController::class, 'index']);
 });
+
+// HOME
+Route::get('/', [AdminController::class, 'index']);
