@@ -16,7 +16,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                Información del Cliente
+                Información Cliente
             </div>
 
             <div class="card-body">
